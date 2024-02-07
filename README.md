@@ -1,2 +1,2 @@
-# cs61b-s1234
+# cs61b
 UCB cs61b
