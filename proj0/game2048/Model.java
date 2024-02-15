@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author : Hanson Tang
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -110,9 +110,43 @@ public class Model extends Observable {
         boolean changed;
         changed = false;
 
-        // TODO: Modify this.board (and perhaps this.score) to account
-        // for the tilt to the Side SIDE. If the board changed, set the
-        // changed local variable to true.
+        board.setViewingPerspective(side);
+
+        boolean[][] merged = new boolean[board.size()][board.size()];
+        for (int r = 2; r >= 0; r--) {
+            for (int c = 0; c <= 3; c++) {
+                Tile t = board.tile(c, r);
+
+                if (t != null) {
+                    int dc = c, dr = r + 1;
+                    while (dr <= 3) {
+                        Tile dt = board.tile(dc, dr);
+                        if (dt != null) {
+                            if (merged[dc][dr] || dt.value() != t.value()) {
+                                dr--;
+                            }
+                            break;
+                        }
+
+                        if (dr == 3) {
+                            break;
+                        }
+
+                        dr++;
+                    }
+
+                    if (dr != r) {
+                        changed = true;
+                    }
+
+                    if (board.move(dc, dr, t)) {
+                        merged[dc][dr] = true;
+                        score += board.tile(dc, dr).value();
+                    }
+                }
+            }
+        }
+        board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
@@ -127,7 +161,6 @@ public class Model extends Observable {
     private void checkGameOver() {
         gameOver = checkGameOver(board);
     }
-
     /** Determine whether game is over. */
     private static boolean checkGameOver(Board b) {
         return maxTileExists(b) || !atLeastOneMoveExists(b);
@@ -137,7 +170,13 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
+        for(int col=0;col<b.size();col++){
+            for(int row=0;row<b.size();row++){
+                if(b.tile(col,row)==null){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -147,7 +186,13 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
+        for(int col=0;col<b.size();col++){
+            for(int row=0;row<b.size();row++){
+                if(b.tile(col,row) != null && b.tile(col,row).value() == MAX_PIECE){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -158,10 +203,25 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
+        return emptySpaceExists(b) || mergeMoveExists(b);
+    }
+    private static boolean mergeMoveExists(Board b) {
+        int[][] neighbors = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // 上下左右
+        int len = b.size();
+        for (Tile t : b) {
+            int c = t.col();    // x
+            int r = t.row();    // y
+            for (int i = 0; i < 4; i++) {
+                int nc = c + neighbors[i][0];
+                int nr = r + neighbors[i][1];
+                if ((0 <= nc && nc < len) && (0 <= nr && nr < len)
+                        && (b.tile(nr, nc).value() == t.value())) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
-
 
     @Override
      /** Returns the model as a string, used for debugging. */

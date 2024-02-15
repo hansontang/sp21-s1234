@@ -22,7 +22,6 @@ public class TestModel extends TestUtils {
      */
 
     @Test
-    /** Checks right two pieces merge when 3 adjacent pieces have same value. */
     public void testTripleMerge1() {
         int[][] before = new int[][]{
                 {2, 0, 0, 0},
@@ -45,7 +44,7 @@ public class TestModel extends TestUtils {
     }
 
     @Test
-    /** Checks right two pieces merge when 3 adjacent pieces have same value. */
+    /* Checks right two pieces merge when 3 adjacent pieces have same value. */
     public void testTripleMerge2() {
         int[][] before = new int[][]{
                 {2, 0, 0, 0},
